@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>u19107464_Web MAP SERVICE: GMT 320</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin=""/>
+    
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <div id="map" style="width: 800px; height: 700px"></div>
+
+    <script>
+        //adding diffrent basemaps
+
+        //OSM tiles attribution and URL
+		var osmLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+		var osmURL = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+		var osmAttrib = '&copy; ' + osmLink;
+
+		//Carto tiles attribution and URL
+		var cartoLink = '<a href="http://cartodb.com/attributions">CartoDB</a>';
+		var cartoURL = 'http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+		var cartoAttrib = '&copy; ' + osmLink + ' &copy; ' + cartoLink;
+
+		//Stamen Toner tiles attribution and URL
+		var stamenURL = 'http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.{ext}';
+		var stamenAttrib = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+		//Creation of map tiles
+		var osmMap = L.tileLayer(osmURL, {attribution: osmAttrib});
+		var cartoMap = L.tileLayer(cartoURL, {attribution: cartoAttrib});
+		var stamenMap = L.tileLayer(stamenURL,{
+			attribution: stamenAttrib,
+			subdomains: 'abcd',
+			minZoom: 0,
+			maxZoom: 20,
+			ext: 'png'
+		});
+
+        //Map creation
+        var map = L.map('map',{
+			layers: [osmMap]
+		}).setView([-25.754544, 28.231482], 14);
+
+        //Base layers definition and addition
+        var baseMaps = {
+            "OpenStreetMap": osmMap,
+			"Dark Matter": cartoMap,
+			"Statem Toner": stamenMap
+        };
+
+        var control = L.control.layers(baseMaps).addTo(map);
+
+        // Styling the geojson layer
+        function style(feature) {
+            return {
+                fillColor: '#E31A1C',
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        // add GeoJSON layer to the map once the file is loaded
+        function createOverlay(data, layerName) {
+            var datalayer = L.geoJson(data ,{
+                style: style,
+                onEachFeature: function(feature, featureLayer) {
+                    featureLayer.bindPopup(feature.properties.WARD_ID);
+                }
+            }).addTo(map);
+            control.addOverlay(datalayer, layerName); // Add the layer to the Layer Control.
+            map.fitBounds(datalayer.getBounds());
+        }
+
+        // loading GeoJSON file - Here my html and CoT_Wards.geojson file resides in same folder
+       $.getJSON("https://github.com/AndaniManyoka/Streamlit_intro/blob/main/CoT_Wards.geojson", function (data) { createOverlay(data, "CoT_Wards") });
+
+       
+       
+       //adding the wards layer//
+        //Add interactive COT_wards layer
+       
+        
+    </script>
+</body>
+</html>
